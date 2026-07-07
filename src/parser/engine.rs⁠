@@ -1,0 +1,60 @@
+/* File Path: src/parser/engine.rs
+   Ecosystem: Braid Browser Core Runtime Engine
+   Operational Baseline: 39,420 Hz Layout Interpolation
+*/
+
+#[derive(Debug, PartialEq)]
+pub enum BraidNodeType {
+    Header,
+    Text,
+    Container,
+}
+
+#[derive(Debug)]
+pub struct BraidDOMNode {
+    pub node_type: BraidNodeType,
+    pub content: String,
+}
+
+pub struct BraidStringParser;
+
+impl BraidStringParser {
+    /// Tokenizes raw incoming byte strings into localized data manifest blocks
+    pub fn parse_manifest_stream(raw_markup: &str) -> Vec<BraidDOMNode> {
+        let mut dom_tree = Vec::new();
+        
+        // Split text payloads by clean line breaks to evaluate code nodes
+        for line in raw_markup.lines() {
+            let trimmed = line.trim();
+            if trimmed.is_empty() { continue; }
+
+            if trimmed.starts_with("// HEADER:") {
+                dom_tree.push(BraidDOMNode {
+                    node_type: BraidNodeType::Header,
+                    content: trimmed.replacen("// HEADER:", "", 1).trim().to_string(),
+                });
+            } else if trimmed.starts_with("[PANEL]") {
+                dom_tree.push(BraidDOMNode {
+                    node_type: BraidNodeType::Container,
+                    content: trimmed.replacen("[PANEL]", "", 1).trim().to_string(),
+                });
+            } else {
+                dom_tree.push(BraidDOMNode {
+                    node_type: BraidNodeType::Text,
+                    content: trimmed.to_string(),
+                });
+            }
+        }
+        dom_tree
+    }
+}
+
+fn main() {
+    println!("// RUNNING LOCALIZED BRAID MARKUP PARSER TEST LOOP...");
+    let mock_stream = "// HEADER: Braid Central Clearing House\n[PANEL] Status: Active\nInitializing 39,420 Hz Synchronization Loop.";
+    
+    let parsed_tree = BraidStringParser::parse_manifest_stream(mock_stream);
+    for node in parsed_tree {
+        println!("  📦 PARSED_NODE: [{:?}] -> {}", node.node_type, node.content);
+    }
+}
