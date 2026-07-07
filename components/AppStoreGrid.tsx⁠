@@ -1,0 +1,41 @@
+/* File Path: components/AppStoreGrid.tsx
+   Posture: 100% Compiler-Safe // Zero Deployment Friction
+*/
+'use client';
+import React from 'react';
+
+const storeModules = [
+  { id: 'browser', index: '01', title: 'Braid Browser Engine client', tag: 'SOVEREIGN_CORE', price: 'FREE / OPEN SOURCE', desc: 'Independent Rust-compiled web runtime container engineered to purge corporate telemetry tracking lines.' },
+  { id: 'zombie', index: '02', title: 'Fine Structure Zombie Engine', tag: 'VISUAL_MODULE', price: '$144.00 ONE-TIME', desc: 'Interactive HTML5 Canvas particle containment matrix simulating vector drift variations.' },
+  { id: 'math', index: '03', title: '$BRAID Invariant Math Pack', tag: 'ALGORITHM_CORE', price: '$499.00 ONE-TIME', desc: 'Legendrian reference geometry and non-associative routing scripts locked at 39,420 Hz.' }
+];
+
+export default function AppStoreGrid() {
+  return (
+    <div className="w-full bg-[#010206] border border-[#1c2d5a] p-6 rounded-2xl font-mono text-left flex flex-col gap-4">
+      <div className="flex justify-between items-center border-b border-[#1c2d5a] pb-3">
+        <h3 className="text-white text-xs font-bold uppercase tracking-widest">// REPLICATED MESH APP DIRECTORY</h3>
+        <span className="text-[9px] text-[#00f2fe] bg-[#09132e] px-2 py-0.5 rounded border border-[#1c2d5a]">ACTIVE_ENTRIES: 03</span>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {storeModules.map((mod) => (
+          <div key={mod.id} className="border border-[#1c2d5a] bg-[#02050f] p-4 rounded-xl flex flex-col justify-between gap-4 hover:border-[#00f2fe] transition-all group">
+            <div className="flex flex-col gap-1.5">
+              <div className="flex justify-between items-center text-[9px] font-bold">
+                <span className="text-[#5850ec]">{mod.index} // {mod.tag}</span>
+                <span className="text-[#00f2fe] bg-[#09132e] px-1.5 py-0.5 rounded border border-[#1c2d5a]">{mod.price}</span>
+              </div>
+              <h4 className="text-white font-bold text-xs mt-1 group-hover:text-[#00f2fe] transition-all uppercase tracking-wide">{mod.title}</h4>
+              <p className="text-[11px] text-[#6b7c96] leading-relaxed mt-0.5">{mod.desc}</p>
+            </div>
+            
+            <button className="w-full text-center border border-[#1c2d5a] bg-[#010206] text-[#9cb3c9] group-hover:border-[#5850ec] group-hover:text-white font-bold text-[9px] py-2 uppercase tracking-widest rounded-lg transition-all">
+              Initialize Deployment Protocol
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
