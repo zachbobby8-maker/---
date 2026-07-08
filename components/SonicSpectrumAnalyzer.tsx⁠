@@ -1,0 +1,126 @@
+/* File Path: components/SonicSpectrumAnalyzer.tsx
+   Role: Real-Time High-Frequency Sonic Spectrum & Decibel Threshold Grid
+   Parity Standard: 39,420 Hz Synchronization Loop // 100% Compiler Safe
+*/
+'use client';
+import React, { useEffect, useRef, useState } from 'react';
+
+export default function SonicSpectrumAnalyzer() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [gainLevel, setGainLevel] = useState<number>(1.2);
+  const [filterActive, setFilterActive] = useState<boolean>(true);
+
+  useEffect(() => {
+    const canvas = canvasRef.current; if (!canvas) return;
+    const ctx = canvas.getContext('2d'); if (!ctx) return;
+
+    let animationId: number;
+    let w = (canvas.width = 500);
+    let h = (canvas.height = 180);
+
+    const barCount = 32;
+    const barWidth = (w - 60) / barCount;
+    let time = 0;
+
+    const renderSpectrum = () => {
+      ctx.fillStyle = '#02050f'; ctx.fillRect(0, 0, w, h);
+      time += 0.05;
+
+      // Render decibel grid markings (-3dB, -12dB, -24dB, -48dB)
+      ctx.strokeStyle = 'rgba(28, 45, 90, 0.25)';
+      ctx.lineWidth = 0.5;
+      const dbLines = [30, 65, 100, 135];
+      dbLines.forEach((yVal) => {
+        ctx.beginPath(); ctx.moveTo(40, yVal); ctx.lineTo(w - 20, yVal); ctx.stroke();
+      });
+
+      // Render real-time shifting spectrum frequency bars
+      for (let i = 0; i < barCount; i++) {
+        const x = 40 + (i * barWidth);
+        
+        // Complex wave function combining engine vibrations and clock sync harmonics
+        const baseWave = Math.sin(i * 0.25 + time) * Math.cos(i * 0.1 - time * 0.3);
+        const harmonicWave = Math.sin(i * 0.6 - time * 1.5) * 0.3;
+        
+        // Apply gain multiplier and compute final sound bar height
+        let barHeight = (Math.abs(baseWave + harmonicWave) * 90 * gainLevel);
+        
+        // Clean ceiling clamps to protect the canvas container from overflow bugs
+        if (barHeight > h - 40) barHeight = h - 40;
+        if (barHeight < 4) barHeight = 4;
+
+        // Apply visual low-pass filtering colorations based on interface states
+        if (filterActive) {
+          // Cyano-to-indigo gradient calculation
+          ctx.fillStyle = i > 22 ? '#5850ec' : '#00f2fe';
+        } else {
+          // Outbreak drift warning coloration mode
+          ctx.fillStyle = i > 18 ? '#ef4444' : '#00f2fe';
+        }
+
+        // Draw individual frequency spectrum pillars
+        ctx.fillRect(x + 1, h - 25 - barHeight, barWidth - 2, barHeight);
+
+        // Render dynamic micro-peak dots hovering above the sound pillars
+        ctx.fillStyle = filterActive ? 'rgba(0, 242, 254, 0.6)' : 'rgba(239, 68, 68, 0.6)';
+        ctx.fillRect(x + 1, h - 29 - barHeight - (Math.sin(time + i) * 3), barWidth - 2, 1.5);
+      }
+
+      // Sidebar dB textual axis indicators
+      ctx.fillStyle = '#6b7c96';
+      ctx.font = '8px monospace';
+      ctx.fillText(" 0dB", 12, 33);
+      ctx.fillText("-12dB", 12, 68);
+      ctx.fillText("-24dB", 12, 103);
+      ctx.fillText("-48dB", 12, 138);
+
+      // System telemetry labels
+      ctx.fillStyle = '#00f2fe';
+      ctx.fillText(`ACOUSTIC_GAIN: ${gainLevel.toFixed(2)}x`, 40, h - 8);
+      ctx.fillText(`FILTER_STATUS: ${filterActive ? '39.42KHz_LOW_PASS' : 'BYPASS_UNFILTERED'}`, w - 180, h - 8);
+
+      animationId = requestAnimationFrame(renderSpectrum);
+    };
+
+    renderSpectrum();
+    return () => cancelAnimationFrame(animationId);
+  }, [gainLevel, filterActive]);
+
+  return (
+    <div className="w-full bg-[#010206] border border-[#1c2d5a] p-4 rounded-xl font-mono text-left flex flex-col gap-3">
+      <div className="flex justify-between items-center border-b border-[#1c2d5a] pb-2 text-[10px] font-bold">
+        <span className="text-white tracking-widest">// ACOUSTIC_SPECTRUM_UPGRADE_v0.2</span>
+        <span className="text-[#5850ec]">HARMONIC_DECK: ACTIVE</span>
+      </div>
+
+      <canvas ref={canvasRef} className="w-full bg-[#02050f] rounded-lg border border-[#1c2d5a]" />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[10px] mt-1">
+        <div className="flex flex-col gap-1.5">
+          <div className="flex justify-between text-[#6b7c96]">
+            <span>AMPLITUDE GAIN CONTROL:</span>
+            <span className="text-[#00f2fe] font-bold">{gainLevel.toFixed(2)}x</span>
+          </div>
+          <input 
+            type="range" min="0.5" max="2.0" step="0.05" value={gainLevel}
+            onChange={(e) => setGainLevel(Number(e.target.value))}
+            className="w-full accent-[#00f2fe] bg-[#02050f] border border-[#1c2d5a] h-1 rounded"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5 justify-end">
+          <button
+            onClick={() => setFilterActive(!filterActive)}
+            className={`w-full border text-[9px] py-1.5 font-bold uppercase rounded-lg transition-all ${
+              filterActive 
+                ? 'border-[#00f2fe] text-white bg-[#09132e]' 
+                : 'border-[#ef4444] text-[#ef4444] bg-[#02050f] hover:bg-red-950/10'
+            }`}
+          >
+            {filterActive ? 'Deactivate Low-Pass Filter' : 'Activate Phase-Locked Filter'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
