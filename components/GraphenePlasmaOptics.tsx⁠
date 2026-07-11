@@ -1,0 +1,159 @@
+/* File Path: components/GraphenePlasmaOptics.tsx
+   Role: Graphene-Gated Ionized Plasma Lens Wavefront Simulator
+   Parity Standard: 39,420 Hz Phase-Locked Wave Control Grid
+*/
+'use client';
+import React, { useEffect, useRef, useState } from 'react';
+
+export default function GraphenePlasmaOptics() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [electronVoltage, setElectronVoltage] = useState<number>(1.37);
+  const [lensState, setLensState] = useState<string>('locked'); // locked vs turbulent
+
+  useEffect(() => {
+    const canvas = canvasRef.current; if (!canvas) return;
+    const ctx = canvas.getContext('2d'); if (!ctx) return;
+
+    let animationId: number;
+    let w = (canvas.width = 500);
+    let h = (canvas.height = 240);
+    let time = 0;
+
+    const ionPool: { x: number; y: number; baseOffset: number; speed: number }[] = [];
+    const ionCount = 64;
+
+    // Initialize plasma ion positions inside the graphene grid coordinates
+    for (let i = 0; i < ionCount; i++) {
+      ionPool.push({
+        x: (w / 2) + (Math.random() - 0.5) * 120,
+        y: (h / 2) + (Math.random() - 0.5) * 120,
+        baseOffset: Math.random() * Math.PI * 2,
+        speed: 0.02 + Math.random() * 0.04
+      });
+    }
+
+    const renderPlasmaLens = () => {
+      ctx.fillStyle = '#02050f'; ctx.fillRect(0, 0, w, h);
+      time += 0.04;
+
+      // 1. Draw Inbound Cosmic Starlight Wavefronts (Left to Right)
+      ctx.lineWidth = 1.0;
+      for (let i = 0; i < 5; i++) {
+        ctx.beginPath();
+        const waveX = 40 + (i * 25) + (time * 15) % 120;
+        
+        ctx.strokeStyle = lensState === 'locked' 
+          ? 'rgba(0, 242, 254, 0.15)' 
+          : 'rgba(239, 68, 68, 0.2)';
+
+        for (let y = 30; y < h - 30; y += 4) {
+          // If light is entering the lens zone, distort it based on system state
+          let xOffset = 0;
+          if (waveX > w / 2 - 60 && waveX < w / 2 + 60) {
+            const distFromCenter = (h / 2) - y;
+            if (lensState === 'locked') {
+              // Perfect parabolic lens convergence focus curving
+              xOffset = (Math.pow(distFromCenter, 2) * 0.003) * electronVoltage;
+            } else {
+              // Chaos distortion scatter drift
+              xOffset = Math.sin(y * 0.1 + time) * 12;
+            }
+          }
+          
+          if (y === 30) ctx.moveTo(waveX + xOffset, y);
+          else ctx.lineTo(waveX + xOffset, y);
+        }
+        ctx.stroke();
+      }
+
+      // 2. Render Single-Atom Thin Graphene Window Boundaries
+      ctx.strokeStyle = '#5850ec';
+      ctx.lineWidth = 1.5;
+      // Left Wall boundary layer
+      ctx.beginPath(); ctx.moveTo(w / 2 - 70, 30); ctx.lineTo(w / 2 - 70, h - 30); ctx.stroke();
+      // Right Wall boundary layer
+      ctx.beginPath(); ctx.moveTo(w / 2 + 70, 30); ctx.lineTo(w / 2 + 70, h - 30); ctx.stroke();
+
+      // 3. Update and Animate Graphene-Caged Plasma Ions
+      ionPool.forEach((ion) => {
+        // Electrodynamic voltage modulation forces gas into active curvature configurations
+        const resonanceScale = lensState === 'locked' ? electronVoltage * 15 : 35;
+        
+        const currentX = ion.x + Math.sin(time * ion.speed + ion.baseOffset) * resonanceScale;
+        const currentY = ion.y + Math.cos(time * ion.speed + ion.baseOffset) * resonanceScale;
+
+        // Draw core plasma energy bursts
+        ctx.fillStyle = lensState === 'locked' ? 'rgba(0, 242, 254, 0.6)' : 'rgba(239, 68, 68, 0.5)';
+        ctx.beginPath();
+        ctx.arc(currentX, currentY, 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Connect proximity ionization fields with web-lattice rules
+        if (Math.random() > 0.94) {
+          ctx.strokeStyle = 'rgba(0, 242, 254, 0.1)';
+          ctx.beginPath(); ctx.moveTo(w / 2 - 70, currentY); ctx.lineTo(currentX, currentY); ctx.stroke();
+        }
+      });
+
+      // 4. Interface Telemetry Overlays
+      ctx.fillStyle = '#00f2fe';
+      ctx.font = '9px monospace';
+      ctx.fillText(`OPTIC_GRID: GRAPHENE_CONTAINMENT_CELL`, 15, 20);
+      ctx.fillText(`ELECTRON_INJECTION: ${electronVoltage.toFixed(2)} EV`, 15, 32);
+      ctx.fillText(`WAVEFRONT_RESONANCE: ${lensState === 'locked' ? '39,420 HZ LOCKED' : 'TURBULENT_SCATTER'}`, w - 210, 20);
+
+      animationId = requestAnimationFrame(renderPlasmaLens);
+    };
+
+    renderPlasmaLens();
+    return () => cancelAnimationFrame(animationId);
+  }, [electronVoltage, lensState]);
+
+  return (
+    <div className="w-full bg-[#010206] border border-[#1c2d5a] p-4 rounded-xl font-mono text-left flex flex-col gap-3">
+      <div className="flex justify-between items-center border-b border-[#1c2d5a] pb-2 text-[10px] font-bold">
+        <span className="text-white tracking-widest">// GRAPHENE_PLASMA_OPTIC_ENGINE</span>
+        <span className={`text-[9px] px-1.5 py-0.5 rounded border ${
+          lensState === 'locked' ? 'border-[#00f2fe] text-[#00f2fe] bg-[#09132e]' : 'border-[#ef4444] text-[#ef4444] bg-red-950/20'
+        }`}>
+          LENS_PHASE: {lensState === 'locked' ? 'STELLAR_SYNC' : 'ATMOSPHERE_DRIFT'}
+        </span>
+      </div>
+
+      <canvas ref={canvasRef} className="w-full bg-[#02050f] rounded-lg border border-[#1c2d5a]" />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[10px] mt-1">
+        <div className="flex flex-col gap-1.5">
+          <div className="flex justify-between text-[#6b7c96]">
+            <span>ELECTRON DENSITY CONTROL:</span>
+            <span className="text-[#00f2fe] font-bold">{electronVoltage.toFixed(2)} EV</span>
+          </div>
+          <input 
+            type="range" min="0.50" max="2.50" step="0.01" value={electronVoltage}
+            onChange={(e) => setElectronVoltage(Number(e.target.value))}
+            className="w-full accent-[#00f2fe] bg-[#02050f] border border-[#1c2d5a] h-1 rounded"
+          />
+        </div>
+
+        <div className="flex gap-2 items-end">
+          <button
+            onClick={() => setLensState('locked')}
+            className={`w-full text-center border text-[8px] py-2 font-bold uppercase rounded transition-all ${
+              lensState === 'locked' ? 'border-[#00f2fe] text-white bg-[#09132e]' : 'border-[#1c2d5a] text-[#6b7c96] hover:border-[#00f2fe]'
+            }`}
+          >
+            Lock Phase (39.42kHz)
+          </button>
+          <button
+            onClick={() => setLensState('turbulent')}
+            className={`w-full text-center border text-[8px] py-2 font-bold uppercase rounded transition-all ${
+              lensState === 'turbulent' ? 'border-[#ef4444] text-white bg-red-950/20' : 'border-[#1c2d5a] text-[#6b7c96] hover:border-[#ef4444]'
+            }`}
+          >
+            Simulate Atmosphere Noise
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
