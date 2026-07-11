@@ -1,0 +1,142 @@
+/* File Path: components/WormholeSimulator.tsx
+   Role: Einstein-Rosen Bridge Spacetime Warp & Throat Contraction Engine
+   Parity Standard: 39,420 Hz Metric Step Interpolation // 100% Build-Safe
+*/
+'use client';
+import React, { useEffect, useRef, useState } from 'react';
+
+export default function WormholeSimulator() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [warpIntensity, setWarpIntensity] = useState<number>(1.0);
+  const [throatStability, setThroatStability] = useState<boolean>(true);
+
+  useEffect(() => {
+    const canvas = canvasRef.current; if (!canvas) return;
+    const ctx = canvas.getContext('2d'); if (!ctx) return;
+
+    let animationId: number;
+    let w = (canvas.width = 500);
+    let h = (canvas.height = 240);
+    let time = 0;
+
+    const ringCount = 12;
+
+    const renderWormhole = () => {
+      ctx.fillStyle = '#01040a'; ctx.fillRect(0, 0, w, h);
+      time += 0.03 * warpIntensity;
+
+      const centerX = w / 2;
+      const centerY = h / 2;
+
+      // 1. Draw gravitational lensing background grid lines
+      ctx.strokeStyle = 'rgba(28, 45, 90, 0.3)';
+      ctx.lineWidth = 0.5;
+      const gridSpacing = 20;
+      for (let x = 0; x < w; x += gridSpacing) {
+        ctx.beginPath();
+        for (let y = 0; y < h; y += 4) {
+          // Calculate distortion factor based on distance to the throat center
+          const dx = x - centerX;
+          const dy = y - centerY;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          
+          // Gravitational metric distortion equation
+          const warpRadius = 60 * warpIntensity;
+          const shift = throatStability 
+            ? (warpRadius * warpRadius) / dist 
+            : (warpRadius * warpRadius * Math.sin(time)) / dist;
+
+          const renderX = x - (dx / dist) * shift;
+          if (y === 0) ctx.moveTo(renderX, y);
+          else ctx.lineTo(renderX, y);
+        }
+        ctx.stroke();
+      }
+
+      // 2. Render Concentric Space-Time Conduit Rings (The Throat)
+      for (let i = 0; i < ringCount; i++) {
+        ctx.beginPath();
+        
+        // Calculate dynamic ring radius traveling inward towards the metric center
+        const ringProgression = ((i / ringCount) + time * 0.2) % 1.0;
+        const radius = ringProgression * 110;
+        
+        // Fade out as rings collapse into the throat singularity limit
+        const alpha = Math.sin(ringProgression * Math.PI) * 0.5;
+        ctx.strokeStyle = i % 2 === 0 ? `rgba(0, 242, 254, ${alpha})` : `rgba(88, 80, 236, ${alpha})`;
+        ctx.lineWidth = 1.5 * (1.0 - ringProgression);
+
+        ctx.arc(centerX, centerY, Math.max(radius, 2), 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Draw active exotic-matter energy bursts along the stability horizons
+        if (i % 3 === 0 && throatStability) {
+          const angle = time + i;
+          const burstX = centerX + Math.cos(angle) * radius;
+          const burstY = centerY + Math.sin(angle) * radius;
+          ctx.fillStyle = '#00f2fe';
+          ctx.fillRect(burstX - 1.5, burstY - 1.5, 3, 3);
+        }
+      }
+
+      // 3. Central Event Boundary Core
+      ctx.fillStyle = '#010206';
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, Math.max(8 * (2.5 - warpIntensity), 4), 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = throatStability ? '#00f2fe' : '#ef4444';
+      ctx.lineWidth = 0.75;
+      ctx.stroke();
+
+      // System Telemetry Interface Overlay
+      ctx.fillStyle = '#00f2fe';
+      ctx.font = '9px monospace';
+      ctx.fillText(`METRIC_FIELD: EINSTEIN_ROSEN_BRIDGE`, 15, 20);
+      ctx.fillText(`SPACETIME_TORSION: ${warpIntensity.toFixed(2)}x G_μν`, 15, 32);
+      ctx.fillText(`THROAT_MATRIX: ${throatStability ? 'EXOTIC_ENERGY_STABLE' : 'CRITICAL_METRIC_COLLAPSE'}`, w - 210, 20);
+
+      animationId = requestAnimationFrame(renderWormhole);
+    };
+
+    renderWormhole();
+    return () => cancelAnimationFrame(animationId);
+  }, [warpIntensity, throatStability]);
+
+  return (
+    <div className="w-full bg-[#010206] border border-[#1c2d5a] p-4 rounded-xl font-mono text-left flex flex-col gap-3 mt-4">
+      <div className="flex justify-between items-center border-b border-[#1c2d5a] pb-2 text-[10px] font-bold">
+        <span className="text-white tracking-widest">// METRIC_WARP_COGNITION_CORE</span>
+        <span className="text-[#00f2fe] animate-pulse">● PHASE_SYNC_39420_HZ</span>
+      </div>
+
+      <canvas ref={canvasRef} className="w-full bg-[#01040a] rounded-lg border border-[#1c2d5a]" />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[10px] mt-1">
+        <div className="flex flex-col gap-1.5">
+          <div className="flex justify-between text-[#6b7c96]">
+            <span>METRIC GRAVITATIONAL BIAS:</span>
+            <span className="text-[#00f2fe] font-bold">{(warpIntensity * 100).toFixed(0)}%</span>
+          </div>
+          <input 
+            type="range" min="0.30" max="2.20" step="0.02" value={warpIntensity}
+            onChange={(e) => setWarpIntensity(Number(e.target.value))}
+            className="w-full accent-[#00f2fe] bg-[#02050f] border border-[#1c2d5a] h-1 rounded"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5 justify-end">
+          <button
+            onClick={() => setThroatStability(!throatStability)}
+            className={`w-full border text-[8px] py-2 font-bold uppercase rounded-lg transition-all ${
+              throatStability 
+                ? 'border-[#00f2fe] text-white bg-[#09132e]' 
+                : 'border-[#ef4444] text-[#ef4444] bg-[#010206] animate-pulse'
+            }`}
+          >
+            {throatStability ? 'Simulate Exotic Matter Drain' : 'Stabilize Throat Geometry'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
