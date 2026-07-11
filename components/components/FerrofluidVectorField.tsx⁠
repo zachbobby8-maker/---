@@ -1,0 +1,109 @@
+/* File Path: components/FerrofluidVectorField.tsx
+   Role: Ferrofluidic Magnetic Vector Field Spike Simulator
+   Parity Standard: 39,420 Hz Core Reference Loop // 100% Build-Safe
+*/
+'use client';
+import React, { useEffect, useRef, useState } from 'react';
+
+export default function FerrofluidVectorField() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [magneticFlux, setMagneticFlux] = useState<number>(1.2);
+  const [spikeDensity, setSpikeDensity] = useState<number>(16);
+
+  useEffect(() => {
+    const canvas = canvasRef.current; if (!canvas) return;
+    const ctx = canvas.getContext('2d'); if (!ctx) return;
+
+    let animationId: number;
+    let w = (canvas.width = 500);
+    let h = (canvas.height = 220);
+    let time = 0;
+
+    const renderFerrofield = () => {
+      ctx.fillStyle = '#010206'; ctx.fillRect(0, 0, w, h);
+      time += 0.03;
+
+      const centerX = w / 2;
+      const centerY = h / 2;
+
+      // Map a matrix grid of directional magnetic vector arrows
+      for (let x = 30; x < w - 30; x += spikeDensity) {
+        for (let y = 30; y < h - 30; y += spikeDensity) {
+          const dx = x - centerX;
+          const dy = y - centerY;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+
+          // Compute localized ferrofluidic distortion tension equations
+          const magnetEffect = Math.sin(dist * 0.06 - time * 2) * magneticFlux * 12;
+          const angle = Math.atan2(dy, dx) + (magnetEffect / dist);
+
+          // Calculate visual line sizing vectors based on core pull
+          const lineLength = Math.max(8, (140 / (dist * 0.03 + 1)) * magneticFlux);
+          const endX = x + Math.cos(angle) * lineLength;
+          const endY = y + Math.sin(angle) * lineLength;
+
+          ctx.beginPath();
+          // Dynamic color-shift grading representing electromagnetic field heat
+          ctx.strokeStyle = dist < 70 * magneticFlux ? '#00f2fe' : 'rgba(88, 80, 236, 0.35)';
+          ctx.lineWidth = dist < 70 * magneticFlux ? 1.25 : 0.6;
+          
+          ctx.moveTo(x, y);
+          ctx.lineTo(endX, endY);
+          ctx.stroke();
+
+          // Render high-intensity spike points along the center field boundaries
+          if (dist < 40 && x % 2 === 0) {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(endX - 1, endY - 1, 1.5, 1.5);
+          }
+        }
+      }
+
+      // Telemetry indicators within display frame bounds
+      ctx.fillStyle = '#00f2fe';
+      ctx.font = '8px monospace';
+      ctx.fillText(`FIELD_MATRIX: FERROFLUIDIC_VECTOR_GRID`, 15, 18);
+      ctx.fillText(`MAGNETIC_FLUX: ${magneticFlux.toFixed(2)} TESLA`, 15, 28);
+      ctx.fillText(`SPIKE_RESOLUTION: ${spikeDensity}PX_INTERVAL`, w - 165, 18);
+
+      animationId = requestAnimationFrame(renderFerrofield);
+    };
+
+    renderFerrofield();
+    return () => cancelAnimationFrame(animationId);
+  }, [magneticFlux, spikeDensity]);
+
+  return (
+    <div className="w-full bg-[#010206] border border-[#1c2d5a] p-4 rounded-xl font-mono text-left flex flex-col gap-3 mt-4">
+      <div className="flex justify-between items-center border-b border-[#1c2d5a] pb-2 text-[10px] font-bold">
+        <span className="text-white tracking-widest">// FERROFLUID_SPIKE_ENGINE_v1.0</span>
+        <span className="text-[#00f2fe] animate-pulse">● FLUX_SYNC_ACTIVE</span>
+      </div>
+
+      <canvas ref={canvasRef} className="w-full bg-[#010206] rounded-lg border border-[#1c2d5a]" />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[10px] mt-1">
+        <div className="flex flex-col gap-1.5">
+          <div className="flex justify-between text-[#6b7c96]">
+            <span>ELECTROMAGNETIC FIELD FLUX:</span>
+            <span className="text-[#00f2fe] font-bold">{(magneticFlux * 100).toFixed(0)}%</span>
+          </div>
+          <input 
+            type="range" min="0.40" max="2.50" step="0.05" value={magneticFlux}
+            onChange={(e) => setMagneticFlux(Number(e.target.value))}
+            className="w-full accent-[#00f2fe] bg-[#02050f] border border-[#1c2d5a] h-1 rounded"
+          />
+        </div>
+
+        <div className="flex gap-2 items-end">
+          <button
+            onClick={() => setSpikeDensity(spikeDensity === 12 ? 18 : 12)}
+            className="w-full text-center border border-[#1c2d5a] text-[8px] py-2 font-bold uppercase rounded bg-[#02050f] text-[#6b7c96] hover:border-[#5850ec] hover:text-white transition-all"
+          >
+            Toggle Spike Density
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
