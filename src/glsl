@@ -1,0 +1,60 @@
+#version 300 es
+precision highp float;
+
+uniform vec2 u_resolution;
+uniform float u_time;
+uniform float u_entropy;
+
+out vec4 fragColor;
+
+float pseudoNoise(vec2 p) {
+    return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+void main() {
+    vec2 uv = (gl_FragCoord.xy * 2.0 - u_resolution.xy) / u_resolution.y;
+    
+    // Core Reference Frequency (39,420 Hz normalized down to scale)
+    float frequency = 3.9420;
+    float t = u_time * 0.6;
+    
+    // Polar warp metrics
+    float r = length(uv);
+    float theta = atan(uv.y, uv.x);
+    
+    // LAYER 01: The Primary Laminar Mesh
+    float wave1 = sin(uv.x * frequency * 2.0 + t) * cos(uv.y * frequency * 2.0 - t);
+    
+    // LAYER 02: Complex Interlocking Braiding (Added for structural density)
+    float waveBraid = sin((uv.y * 8.0) + (t * 1.5)) * cos((uv.x * 8.0) - (t * 1.5));
+    
+    // LAYER 03: The Stochastic Inversion Glitch Matrix (\daleth)
+    float glitchTrigger = step(0.85, u_entropy * pseudoNoise(vec2(floor(t * 10.6), uv.y)));
+    float wave3 = sin((theta * 5.0) + (r * frequency * 3.0) - (t * 3.0));
+    if (glitchTrigger > 0.5) {
+        wave3 = cos((theta * 10.0) - (r * frequency * 5.0) + t); // Radical phase crush
+    }
+    
+    // Blend the multi-layered fluid channels together
+    float combinedFlow = mix(wave1, wave3, 0.4 + 0.4 * sin(t + r)) + (waveBraid * 0.25);
+    
+    // High-density fractal grid lines
+    float gridLineX = abs(sin(uv.y * 35.0 + combinedFlow));
+    float gridLineY = abs(cos(uv.x * 35.0 + combinedFlow));
+    float finalGrid = smoothstep(0.0, 0.08, gridLineX * gridLineY);
+    
+    // Color Profile: High-stature Cyano-Luminescent Indigo Gradients
+    vec3 cyanoBase = vec3(0.0, 0.95, 1.0);
+    vec3 indigoBase = vec3(0.34, 0.31, 0.93);
+    
+    // Mix the pixel shader color palette using the flow density gradients
+    vec3 finalColor = mix(indigoBase * 0.1, cyanoBase, clamp(combinedFlow + ((1.0 - finalGrid) * 0.4), 0.0, 1.0));
+    
+    // Inject the raw noise shimmer directly to the silicon matrix
+    finalColor += vec3(pseudoNoise(uv + t) * 0.12 * u_entropy);
+    
+    // Vignette profile to lock the focus inward
+    float vignette = smoothstep(2.0, 0.3, r);
+    
+    fragColor = vec4(finalColor * vignette, 1.0);
+}
