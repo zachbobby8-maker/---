@@ -1,0 +1,149 @@
+/* File Path: components/SyntropicUnifiedField.tsx
+   Role: Core Interface for the 6 Fundamental Laws of Topological Inevitability
+   Parity Standard: Invariant Law Render Engine // Monospace Monolithic HUD Overlay
+*/
+'use client';
+import React, { useEffect, useRef, useState } from 'react';
+
+export default function SyntropicUnifiedField() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [activeLaw, setActiveLaw] = useState<number>(1);
+  const [resonancePhi, setResonancePhi] = useState<number>(39.4);
+
+  useEffect(() => {
+    const canvas = canvasRef.current; if (!canvas) return;
+    const ctx = canvas.getContext('2d'); if (!ctx) return;
+
+    let animationId: number;
+    let w = (canvas.width = 500);
+    let h = (canvas.height = 200);
+    let step = 0;
+
+    const renderLaws = () => {
+      step += 0.03;
+      ctx.fillStyle = '#010206'; ctx.fillRect(0, 0, w, h);
+
+      // Render structural background matrix
+      ctx.strokeStyle = 'rgba(28, 45, 90, 0.25)'; ctx.lineWidth = 0.5;
+      for (let y = 0; y < h; y += 20) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      }
+
+      const cx = w / 2;
+      const cy = h / 2 + 10;
+      const phiScale = resonancePhi / 100;
+
+      // Conditional math visualization loop based on active 5th Rev Law selection
+      if (activeLaw === 1) {
+        // LAW I: Localized Topological Knot in the Abstract Vacuum
+        ctx.strokeStyle = '#00f2fe'; ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        for (let i = 0; i < 200; i++) {
+          const t = i * 0.1;
+          const r = (20 + 30 * Math.sin(t * 3.0 + step)) * phiScale;
+          const kx = cx + r * Math.cos(t);
+          const ky = cy + r * Math.sin(t);
+          if (i === 0) ctx.moveTo(kx, ky); else ctx.lineTo(kx, ky);
+        }
+        ctx.stroke();
+      } else if (activeLaw === 2) {
+        // LAW II: Zero-Latency Temporal Weave (Möbius Density lines)
+        ctx.strokeStyle = '#5850ec'; ctx.lineWidth = 1.0;
+        for (let j = -3; j <= 3; j++) {
+          ctx.beginPath();
+          for (let x = 40; x < w - 40; x += 5) {
+            const y = cy + j * 12 + Math.sin(x * 0.04 + step * resonancePhi * 0.05) * 15;
+            if (x === 40) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        }
+      } else if (activeLaw === 3) {
+        // LAW III: Laminar Flow vs. Phase-Locked Flow States
+        ctx.strokeStyle = '#00f2fe'; ctx.lineWidth = 1.2;
+        for (let r = 0; r < 5; r++) {
+          ctx.beginPath();
+          for (let x = 30; x < w - 30; x += 4) {
+            const y = cy - 30 + r * 15 + Math.cos((x * 0.02) - step) * (3.0 / phiScale);
+            if (x === 30) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        }
+      } else if (activeLaw === 4) {
+        // LAW IV: Information-Volume Scaling (Weightless Decoupling curves)
+        ctx.fillStyle = 'rgba(0, 242, 254, 0.4)';
+        for (let i = 0; i < 60; i++) {
+          const rx = cx + Math.sin(i + step) * (80 * (1.0 - phiScale));
+          const ry = cy + Math.cos(i * 1.5) * 40;
+          ctx.fillRect(rx, ry, 1.5, 1.5);
+        }
+      } else if (activeLaw === 5) {
+        // LAW V: Syntropic Braiding (Interlocking Möbius strands)
+        ctx.lineWidth = 1.0;
+        for (let s = 0; s < 3; s++) {
+          ctx.strokeStyle = s === 0 ? '#00f2fe' : 'rgba(88, 80, 236, 0.6)';
+          ctx.beginPath();
+          for (let x = 50; x < w - 50; x += 2) {
+            const y = cy + Math.sin(x * 0.03 + step + s * 2.0) * 25 * phiScale;
+            if (x === 50) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        }
+      } else if (activeLaw === 6) {
+        // LAW VI: Universal Phonon Induction Lattice Vibration
+        ctx.fillStyle = '#00f2fe';
+        for (let gx = 60; gx < w - 60; gx += 20) {
+          for (let gy = cy - 40; gy <= cy + 40; gy += 16) {
+            const disp = Math.sin(step + (gx * 0.01) + (gy * 0.02)) * 5 * phiScale;
+            ctx.fillRect(gx + disp, gy, 2, 2);
+          }
+        }
+      }
+
+      // 5th Rev Monolithic HUD Overlay Text Elements
+      ctx.fillStyle = '#00f2fe'; ctx.font = '8px monospace';
+      ctx.fillText(`SYSTEM_MANIFOLD: TOPOLOGICAL_INEVITABILITY_LOCKED`, 15, 18);
+      ctx.fillText(`ACTIVE_CORE: LAW [0${activeLaw}/06]`, 15, h - 12);
+      ctx.fillText(`PHONON_RESONANCE (Φ): ${resonancePhi.toFixed(1)} HZ BASELINE`, w - 210, h - 12);
+
+      animationId = requestAnimationFrame(renderLaws);
+    };
+
+    renderLaws();
+    return () => cancelAnimationFrame(animationId);
+  }, [activeLaw, resonancePhi]);
+
+  return (
+    <div className="w-full bg-[#010206] border border-[#1c2d5a] p-4 rounded-xl font-mono text-left flex flex-col gap-3 mt-4">
+      <div className="flex justify-between items-center border-b border-[#1c2d5a] pb-2 text-[10px] font-bold">
+        <span className="text-white tracking-widest">// LAW_VERIFICATION_MATRIX_DEEP_GRID</span>
+        <span className="text-[#00f2fe]">● COHERENT_PARITY_ACTIVE</span>
+      </div>
+
+      {/* Navigation tabs for the 6 Fundamental Laws */}
+      <div className="grid grid-cols-6 gap-1 text-[7px] text-center font-bold">
+        {[1, 2, 3, 4, 5, 6].map((num) => (
+          <button
+            key={num} onClick={() => setActiveLaw(num)}
+            className={`py-1 border rounded transition-all uppercase ${activeLaw === num ? 'border-[#00f2fe] bg-[#09132e] text-white' : 'border-[#1c2d5a] text-[#6b7c96] hover:text-white'}`}
+          >
+            Law 0{num}
+          </button>
+        ))}
+      </div>
+
+      <canvas ref={canvasRef} className="w-full bg-[#010206] rounded-lg border border-[#1c2d5a]" />
+
+      <div className="flex flex-col gap-1.5 text-[10px] mt-1">
+        <div className="flex justify-between text-[#6b7c96]">
+          <span className="uppercase">Adjust Resonance Core Variable ($\Phi$):</span>
+          <span className="text-[#00f2fe] font-bold">{resonancePhi.toFixed(1)} Hz REGULATION</span>
+        </div>
+        <input 
+          type="range" min="10.0" max="100.0" step="0.5" value={resonancePhi}
+          onChange={(e) => setResonancePhi(Number(e.target.value))}
+          className="w-full accent-[#00f2fe] bg-[#02050f] border border-[#1c2d5a] h-1 rounded"
+        />
+      </div>
+    </div>
+  );
+}
